@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="h-screen flex justify-center items-center overflow-hidden">
+    <div class="flex flex-col justify-center h-96 shadow items-center w-xl">
+      <p>Welcome,</p>
+      <p class="text-center">
+        Please verify your e-mail using the code give below:
+      </p>
+      <div
+        class="my-7 shadow w-52 h-20 flex justify-center items-center text-4xl font-bold"
+      >
+        {{code}}
+      </div>
+      <p class="text-center">
+        <strong>Note: </strong>This code will expire in 10 minutes
+      </p>
+    </div>
+  </body>
+</html>
