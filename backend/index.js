@@ -22,7 +22,11 @@ app.post('/register', async (req, res) => {
     try {
         const existingUser = await User.findOne({ email })
         if (existingUser) {
-            return res.status(400).json({ message: 'User Already exist' })
+            if (!existingUser.isVerified) {
+                await User.findOneAndDelete({ email: existingUser.email }, {})
+                return res.status(400).json({ message: 'not verified' })
+            }
+            return res.status(400).json({ message: 'exist' })
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
@@ -46,11 +50,10 @@ app.post('/register', async (req, res) => {
 app.post("/verify", async (req, res) => {
     const { otp, email } = req.body
     try {
-        const validOtp = await Otp.findOne({ otp })
+        const validOtp = await Otp.findOne({ email, otp })
         if (!validOtp) {
             return res.status(400).json({ message: 'Invalid or expired OTP' })
         }
-
         await User.findOneAndUpdate({ email }, { isVerified: true })
         await Otp.deleteOne({ _id: validOtp._id })
         res.status(200).json({ message: 'Email verified successfully' })
@@ -60,7 +63,29 @@ app.post("/verify", async (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
+    const { username, password } = req.body
 
+    try {
+        const user = await User.findOne({ username })
+        if (!user) {
+            return res.status(404).json({ message: "not exist" })
+        }
+
+        if (!user.isVerified) {
+            return res.status(401).json({ message: "not verified" })
+        }
+
+        const validPassword = await bcrypt.compare(password, user.password)
+
+        if (!validPassword) {
+            return res.status(401).json({ message: 'Invalid password' });
+        }
+
+        res.status(200).json({ message: 'Login successful' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 })
 
 app.listen(port, (req, res) => {

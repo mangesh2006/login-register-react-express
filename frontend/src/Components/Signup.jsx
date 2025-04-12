@@ -16,14 +16,21 @@ const Signup = () => {
   const onSubmit = async (data) => {
     try {
       const response = await axios.post("http://localhost:3000/register", data)
-      if (response.status === 200) {
+      if (response.data.message === 'exist') {
+        toast.error('User already exist')
+      } else if (response.status === 200) {
         localStorage.setItem('verify_email', data.email)
         navigate('/verify')
-      } else {
-        toast.error(response.data.message)
       }
     } catch (error) {
-      toast.error(error)
+      const message = error.response?.data?.message;
+      if (message === 'exist') {
+        toast.error('User already exists');
+      } else if (message === 'not verified') {
+        toast.error('Email not verified please sign-up again');
+      } else {
+        toast.error('Signup error');
+      }
     }
   }
 
